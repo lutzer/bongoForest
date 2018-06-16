@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name Arduino)(type KiCad)(uri "$(KIPRJMOD)/libs/arduino-kicad-library-master/Arduino.pretty")(options "")(descr ""))
+  (lib (name ArduProMiniTKB)(type Legacy)(uri "$(KIPRJMOD)/libs/ArduProMini/ArduProMiniTKB.mod")(options "")(descr ""))
+)
