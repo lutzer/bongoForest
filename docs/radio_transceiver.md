@@ -12,6 +12,19 @@ Datasheet: https://www.sparkfun.com/datasheets/Components/SMD/nRF24L01Pluss_Prel
 
 
 
+### Connection Guide
+
+```
+Radio MISO -> Arduino 12 MISO
+Radio MOSI -> Arduino 11 MOSI
+Radio SCK  -> Arduino 13 SCK
+Radio CE   -> Any GPIO Pin (can be same as CSN)
+Radio CSN  -> Any GPIO Pin (pin 10 recommended)
+Radio IRQ  -> Any GPIO Pin (optional)
+```
+
+
+
 **Notes**
 
 To maximize the transmission/reception distance (range) we recommend the following:
