@@ -15,3 +15,9 @@
 * [ ] 10x 10uF Capacitor
 * [ ] Strom schraub verbinder
 * [ ] 20x pin header male 1x2
+
+
+
+### Drums
+
+Solenoids
