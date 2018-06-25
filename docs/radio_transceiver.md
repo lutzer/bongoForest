@@ -6,9 +6,9 @@ Datasheet: https://www.sparkfun.com/datasheets/Components/SMD/nRF24L01Pluss_Prel
 
 ### pinout
 
-![pinout](/Users/lutz/Projects/bongoForest/docs/pinout.png)
+![pinout](pinout.png)
 
-![NRF24L01-Transceiver-Module-Pinouts-Connections](/Users/lutz/Projects/bongoForest/docs/NRF24L01-Transceiver-Module-Pinouts-Connections.jpg)
+![NRF24L01-Transceiver-Module-Pinouts-Connections](NRF24L01-Transceiver-Module-Pinouts-Connections.jpg)
 
 
 
