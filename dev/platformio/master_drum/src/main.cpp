@@ -47,7 +47,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   Serial.begin(9600);
 
-  // _radio.init(RADIO_MASTER_ID, RADIO_CE_PIN, RADIO_CSN_PIN);
+  _radio.init(RADIO_MASTER_ID, RADIO_CE_PIN, RADIO_CSN_PIN);
 }
 
 void flashLED() {
@@ -66,7 +66,7 @@ void trigger(uint8_t value) {
   flashLED();
 
   uint8_t _data = (uint8_t) value;
-  // _radio.send(RADIO_SLAVE_ID, &_data, sizeof(_data));
+  _radio.send(RADIO_SLAVE_ID, &_data, sizeof(_data));
 }
 
 #ifdef FILTERED_SIGNAL
