@@ -1,6 +1,6 @@
-update=2018 June 16, Saturday 15:32:35
+update=2018 July 21, Saturday 11:45:24
 version=1
-last_client=kicad
+last_client=eeschema
 [pcbnew]
 version=1
 LastNetListRead=
@@ -60,3 +60,13 @@ LibName28=contrib
 LibName29=valves
 LibName30=libs/arduino-kicad-library-master/arduino
 LibName31=libs/ArduProMini/ArduProMiniTKB
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60
