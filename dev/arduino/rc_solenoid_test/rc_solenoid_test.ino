@@ -33,7 +33,7 @@ void loop() {
     _radio.readData(&_data);
   }
 
-   if ( _data == 111) {
+   if ( _data != 0) {
       digitalWrite(SOLENOID_PIN, HIGH);
       digitalWrite(LED_BUILTIN,HIGH);
       digitalWrite(LEDS_PIN,HIGH);
