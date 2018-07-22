@@ -3,6 +3,8 @@
 #include <SPI.h>
 #include <NRFLite.h>
 
+#include "RfMessage.h"
+
 // RF chip
 /*
   Radio MISO -> Arduino 12 MISO
@@ -20,9 +22,11 @@
 
 NRFLite _radio;
 
+RfMessage *message;
+
 // LED
 #define LED_PIN 7
-const uint16_t LEDDuration = 150;
+const uint16_t LEDDuration = 90;
 unsigned long lastLEDTime = 0;
 
 // piezoelectric
@@ -38,14 +42,12 @@ uint64_t lastHitTime = 0;
 uint64_t lastDebounceTime = 0;
 uint16_t maxHit = 0;
 
-
-// TODO: remove?
 uint8_t sensorReading = 0;
 uint8_t lastSensorData = 0;
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
-  Serial.begin(9600);
+  // Serial.begin(9600);
 
   _radio.init(RADIO_MASTER_ID, RADIO_CE_PIN, RADIO_CSN_PIN);
 }
@@ -62,11 +64,22 @@ void updateLED() {
 }
 
 void trigger(uint8_t value) {
-  Serial.println(value, DEC);
+  // Serial.println(value, DEC);
   flashLED();
 
-  uint8_t _data = (uint8_t) value;
-  _radio.send(RADIO_SLAVE_ID, &_data, sizeof(_data));
+  message = new RfMessage();
+  message->type = 't';
+  message->value = (uint16_t)value;
+  message->id = 3;
+
+  // Serial.println(message->value, DEC);
+  // Serial.println(message->type);
+  // Serial.println(sizeof(*message));
+  // Serial.println("-----");
+
+  _radio.send(RADIO_SLAVE_ID, message, sizeof(*message));
+
+  delete message;
 }
 
 #ifdef FILTERED_SIGNAL
