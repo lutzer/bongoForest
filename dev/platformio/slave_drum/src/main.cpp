@@ -3,7 +3,7 @@
 * @Date:   2018-07-21T14:10:26+02:00
 * @Project: Brain String
  * @Last modified by:   lutz
- * @Last modified time: 2018-07-22T22:23:45+02:00
+ * @Last modified time: 2018-07-23T23:06:24+02:00
 */
 
 
@@ -25,7 +25,14 @@
 NRFLite radio;
 RfMessage message;
 
-uint16_t delayTime = 500;
+struct Settings {
+	uint16_t delayTime;
+	uint16_t delayChange;
+	uint16_t changeInterval;
+	uint8_t threshold;
+};
+
+Settings settings;
 
 Queue<Trigger> queue = Queue<Trigger>(64);
 
@@ -41,13 +48,50 @@ void triggerDrum(int triggerTime) {
 
 // reads settings from eeprom
 void readSettings() {
-	EEPROM.get(EEPROM_DELAY, delayTime);
+	EEPROM.get(EEPROM_DELAY_TIME, settings.delayTime);
+	EEPROM.get(EEPROM_THRESHOLD, settings.threshold);
+	EEPROM.get(EEPROM_DELAY_CHANGE, settings.delayChange);
+	EEPROM.get(EEPROM_CHANGE_INTERVAL, settings.changeInterval);
 
-	if (delayTime == 0)
-		delayTime = DEFAULT_DELAY_TIME;
+	Serial.println("# SETTINGS");
+	Serial.print("delayTime: ");
+	Serial.println(settings.delayTime);
+	Serial.print("delayChange: ");
+	Serial.println(settings.delayChange);
+	Serial.print("changeInterval: ");
+	Serial.println(settings.changeInterval);
+	Serial.print("threshold: ");
+	Serial.println(settings.threshold);
+}
+
+void setDefaultSettings() {
+	Serial.println("set default values");
+	EEPROM.put(EEPROM_DELAY_TIME, DEFAULT_DELAY_TIME);
+	EEPROM.put(EEPROM_DELAY_CHANGE, DEFAULT_DELAY_CHANGE);
+	EEPROM.put(EEPROM_CHANGE_INTERVAL, DEFAULT_CHANGE_INTERVAL);
+	EEPROM.put(EEPROM_THRESHOLD, DEFAULT_THRESHOLD);
+}
+
+void clearEEPROM() {
+	uint8_t first;
+	EEPROM.get(0, first);
+	if (first == 0) {
+		first = 0;
+		Serial.println("Clearing eeprom.");
+		for (int i = 0 ; i < EEPROM.length() ; i++) {
+			EEPROM.put(i, 0);
+		}
+	}
+}
+
+float getDelayTime(long ms) {
+	return settings.delayTime + sin(M_PI / (float)settings.changeInterval * ms) * (float)settings.delayChange;
 }
 
 void setup() {
+
+	// reset eeprom
+	clearEEPROM();
 
 	Serial.begin(9600);
 
@@ -66,9 +110,6 @@ void setup() {
 		triggerDrum(50);
 		delay(500);
 	}
-
-	Serial.print("started, delay:");
-	Serial.println(delayTime);
 }
 
 void loop() {
@@ -81,21 +122,53 @@ void loop() {
 		hasNewMessage = true;
 	}
 
+	if (Serial.available() > 0 && Serial.read() == 'r') {
+		setDefaultSettings();
+		readSettings();
+	}
+
 	if ( hasNewMessage ) {
 
 		switch ( message.type ) {
 			// trigger drum
-			case 't':
+			case 'h':
 				Trigger trigger;
 				trigger.velocity = message.value;
-				trigger.triggerTime = millis() + delayTime;
+				trigger.triggerTime = millis() + getDelayTime(millis());
 				queue.push(trigger);
 				break;
-			// set delay
+			// set delay and update eeprom
 			case 'd':
-				delayTime = message.value;
-				EEPROM.update(EEPROM_DELAY, delayTime);
-				Serial.println(delayTime);
+				if (message.id != BOARD_ID)
+					break;
+				settings.delayTime = message.value;
+				EEPROM.put(EEPROM_DELAY_TIME, settings.delayTime);
+				Serial.print("Updated delay time to ");
+				Serial.println(settings.delayTime);
+				break;
+			case 'c':
+				if (message.id != BOARD_ID)
+					break;
+				settings.delayChange = message.value;
+				EEPROM.put(EEPROM_DELAY_CHANGE, settings.delayChange);
+				Serial.print("Updated delayChange to ");
+				Serial.println(settings.delayChange);
+				break;
+			case 'i':
+				if (message.id != BOARD_ID)
+					break;
+				settings.changeInterval = message.value;
+				EEPROM.put(EEPROM_THRESHOLD, settings.changeInterval);
+				Serial.print("Updated changeInterval to ");
+				Serial.println(settings.changeInterval);
+				break;
+			case 't':
+				if (message.id != BOARD_ID)
+					break;
+				settings.threshold = message.value;
+				EEPROM.put(EEPROM_THRESHOLD, settings.threshold);
+				Serial.print("Updated delayChange to ");
+				Serial.println(settings.threshold);
 				break;
 		}
 		hasNewMessage = false;
