@@ -26,7 +26,6 @@ NRFLite _radio;
 RfMessage *message;
 
 const char serialTerminator = ';';
-// const char *SerialMessageFormat = "%c%d,%c%d,%c%d";
 const char *SerialMessageFormat = "%c,%d,%d";
 
 String serialResponse = "";
@@ -54,7 +53,7 @@ void loop() {
 
     // check the format
     if (sscanf(p, SerialMessageFormat, &type, &value, &id) == 3) {
-      Serial.println(serialResponse);
+      // Serial.println(serialResponse);
 
       // send config message
       message = new RfMessage();
