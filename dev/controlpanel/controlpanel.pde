@@ -1,5 +1,7 @@
 import controlP5.*;
 import processing.serial.*;
+import java.util.*;
+import java.io.*;
 
 Serial serial;
 
@@ -7,12 +9,18 @@ int sleepMessage = 30;
 
 // UI
 int activeID = 0;
+boolean listenChange = true;
 final int ctrYpos = 80;
 final int ctrXMargin = 30;
 final int ctrXpos = (600-400-ctrXMargin*3) / 2;
 final int numIDs = 12;
 final int tabFontSize = 14;
 final int btnUpdateId = 777; 
+
+final String saveName = "saveConfigName";
+final String saveBtn = "saveConfigBtn";
+final String loadName = "loadConfigName";
+
 ControlP5 cp5;
 
 void setup() {
@@ -30,6 +38,7 @@ void setup() {
   PFont pfont = createFont("Arial",tabFontSize,true); // use true/false for smooth/no-smooth
   ControlFont font = new ControlFont(pfont,tabFontSize);
      
+  // load / save
   cp5.getTab("default")
     .setHeight(30)
     .activateEvent(true)
@@ -38,6 +47,30 @@ void setup() {
     .getCaptionLabel()
     .setFont(font)
     .setSize(tabFontSize);
+      
+  cp5.addTextfield(saveName)
+    .setPosition(ctrXpos + 50, ctrYpos)
+    .setSize(160,20)
+    .setText("config_version_name")
+    .setCaptionLabel("Save config version");
+    
+  cp5.addButton(saveBtn)
+    .setPosition(ctrXpos + 50, ctrYpos + 50)
+    .setSize(160,19)
+    .setCaptionLabel("Save");
+    
+  /* add a ScrollableList, by default it behaves like a DropdownList */
+  cp5.addScrollableList(loadName)
+    .setPosition(width - ctrXpos - 250, ctrYpos)
+    .setSize(200, 100)
+    .setBarHeight(20)
+    .setItemHeight(20)
+    .setLabel("load saved version")
+    .setType(ScrollableList.DROPDOWN);
+     
+  cp5.getController(saveName).moveTo("default");
+  cp5.getController(saveBtn).moveTo("default");
+  cp5.getController(loadName).moveTo("default");
 
   cp5.addTab("test")
     .setHeight(30)
@@ -46,6 +79,7 @@ void setup() {
     .getCaptionLabel()
     .setFont(font)
     .setSize(tabFontSize);
+    
      
   for (int i = 0; i < numIDs; i++) {
     // create tab
@@ -64,6 +98,9 @@ void setup() {
     createControllers(id, tabName);
   
   }
+  
+  // update file list
+  updateConfigFiles(sketchPath(""), ".json");
 }
 
 void draw() {
@@ -145,8 +182,23 @@ void controlEvent(ControlEvent theControlEvent) {
     int id = theControlEvent.getController().getId();
     if (id == btnUpdateId && activeID < 13 && activeID > 0) {
       processControllersByTabId(activeID);
-    }
-  } 
+    } else
+      if (theControlEvent.getController().getName() == saveBtn) {
+        saveSettings(cp5.get(Textfield.class,saveName).getText());
+      }
+  }
+}
+
+void loadConfigName(int n) {
+  if (listenChange) {
+    listenChange = false;
+    println("click");
+    println( cp5.get(ScrollableList.class,loadName).getItem(n).get("value").toString() );
+    loadSettings( cp5.get(ScrollableList.class,loadName).getItem(n).get("value").toString() );  
+  } else {
+    listenChange = true;
+  }
+      
 }
 
 void processControllersByTabId(int id) {
@@ -170,14 +222,35 @@ void processControllersByTabId(int id) {
 }
 
 void saveSettings(String name) {
-    cp5.getProperties().saveSnapshot(name);
+  println("Saving config file - "+name);
+  cp5.getProperties().setSnapshot(name);
+  cp5.getProperties().saveSnapshot(name);
+  updateConfigFiles(sketchPath(""), ".json");
 }
+
 void loadSettings(String name) {
-    cp5.getProperties().load(name);
+  println("Loading config file - "+name);
+  cp5.getProperties().load(name);
 }
-void displaySnapshots() {
-    println(cp5.getProperties().getSnapshotIndices());
+
+void updateConfigFiles(final String path, final String format) {
+  File dir = new File(path);
+  //println("Searching on "+ dir);
+  File [] files = dir.listFiles(new FilenameFilter() {
+    @Override
+    public boolean accept(File dir, String name) {
+      return name.endsWith(format);
+    }
+  });
+  
+  cp5.get(ScrollableList.class,loadName).clear();
+  
+  for (File filename : files) {
+    println("Reading config file - "+filename.getName());
+    cp5.get(ScrollableList.class,loadName).addItem(filename.getName(), filename.getName());
+  }
 }
+
 void sendSerialMessage(char type, int value, int id) {
   println(type+" "+value+" "+id);
   serial.write(type+","+value+","+id+";");
