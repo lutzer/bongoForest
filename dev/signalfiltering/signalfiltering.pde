@@ -84,7 +84,7 @@ void renderBuffer() {
   for (int value: buffer) {
     stroke(255);
     float x = map(i, 0, bufferSize, 0, width);
-    float y = map(value, 0, 190, 0, height - margin);
+    float y = map(value, 0, 255, 0, height - margin);
       
     if (value > threshold)
       stroke(255, 0, 0);

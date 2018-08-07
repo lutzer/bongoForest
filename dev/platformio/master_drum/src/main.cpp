@@ -33,7 +33,6 @@ unsigned long lastLEDTime = 0;
 #define SENSOR_PIN A0
 
 // filter
-
 #define FILTERED_SIGNAL
 const uint8_t sensorThreshold = 51;
 const uint8_t hitDelay = 72;
@@ -47,7 +46,7 @@ uint8_t lastSensorData = 0;
 
 void setup() {
   pinMode(LED_PIN, OUTPUT);
-  // Serial.begin(9600);
+  Serial.begin(9600);
 
   _radio.init(RADIO_MASTER_ID, RADIO_CE_PIN, RADIO_CSN_PIN);
 }
@@ -64,13 +63,13 @@ void updateLED() {
 }
 
 void trigger(uint8_t value) {
-  // Serial.println(value, DEC);
+  Serial.println(value, DEC);
   flashLED();
 
   message = new RfMessage();
-  message->type = 't';
+  message->type = 'h';
   message->value = (uint16_t)value;
-  message->id = 3;
+  // message->id = 3;
 
   // Serial.println(message->value, DEC);
   // Serial.println(message->type);
