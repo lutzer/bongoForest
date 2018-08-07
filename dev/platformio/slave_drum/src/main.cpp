@@ -2,7 +2,7 @@
 * @Author: Lutz Reiter [http://www.lu-re.de] <lutz>
 * @Date:   2018-07-21T14:10:26+02:00
  * @Last modified by:   lutz
- * @Last modified time: 2018-08-07T22:59:57+02:00
+ * @Last modified time: 2018-08-07T23:18:40+02:00
 */
 
 
@@ -64,13 +64,13 @@ void readSettings() {
 }
 
 template <typename T>
-void updateEEPROM(int adress, T value) {
+void updateEEPROM(int address, T value) {
 	T currentValue;
-	EEPROM.get(adress, currentValue);
+	EEPROM.get(address, currentValue);
 
 	// only update when changed
 	if (currentValue != value)
-		EEPROM.put(adress, value);
+		EEPROM.put(address, value);
 }
 
 void setDefaultSettings() {
