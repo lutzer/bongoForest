@@ -1,9 +1,8 @@
 /**
 * @Author: Lutz Reiter [http://www.lu-re.de] <lutz>
 * @Date:   2018-07-21T14:10:26+02:00
-* @Project: Brain String
  * @Last modified by:   lutz
- * @Last modified time: 2018-07-23T23:06:24+02:00
+ * @Last modified time: 2018-08-07T22:59:57+02:00
 */
 
 
@@ -64,12 +63,22 @@ void readSettings() {
 	Serial.println(settings.threshold);
 }
 
+template <typename T>
+void updateEEPROM(int adress, T value) {
+	T currentValue;
+	EEPROM.get(adress, currentValue);
+
+	// only update when changed
+	if (currentValue != value)
+		EEPROM.put(adress, value);
+}
+
 void setDefaultSettings() {
 	Serial.println("set default values");
-	EEPROM.put(EEPROM_DELAY_TIME, DEFAULT_DELAY_TIME);
-	EEPROM.put(EEPROM_DELAY_CHANGE, DEFAULT_DELAY_CHANGE);
-	EEPROM.put(EEPROM_CHANGE_INTERVAL, DEFAULT_CHANGE_INTERVAL);
-	EEPROM.put(EEPROM_THRESHOLD, DEFAULT_THRESHOLD);
+	updateEEPROM(EEPROM_DELAY_TIME, DEFAULT_DELAY_TIME);
+	updateEEPROM(EEPROM_DELAY_CHANGE, DEFAULT_DELAY_CHANGE);
+	updateEEPROM(EEPROM_CHANGE_INTERVAL, DEFAULT_CHANGE_INTERVAL);
+	updateEEPROM(EEPROM_THRESHOLD, DEFAULT_THRESHOLD);
 }
 
 void clearEEPROM() {
@@ -94,6 +103,11 @@ void setup() {
 	clearEEPROM();
 
 	Serial.begin(9600);
+
+	Serial.print("Starting ");
+	Serial.print(BOARD_TYPE);
+	Serial.print(" with id: ");
+	Serial.println(BOARD_ID);
 
 	// initialize digital pin LED_BUILTIN as an output.
 	pinMode(SOLENOID_PIN, OUTPUT);
@@ -142,7 +156,7 @@ void loop() {
 				if (message.id != BOARD_ID)
 					break;
 				settings.delayTime = message.value;
-				EEPROM.put(EEPROM_DELAY_TIME, settings.delayTime);
+				updateEEPROM(EEPROM_DELAY_TIME, settings.delayTime);
 				Serial.print("Updated delay time to ");
 				Serial.println(settings.delayTime);
 				break;
@@ -150,7 +164,7 @@ void loop() {
 				if (message.id != BOARD_ID)
 					break;
 				settings.delayChange = message.value;
-				EEPROM.put(EEPROM_DELAY_CHANGE, settings.delayChange);
+				updateEEPROM(EEPROM_DELAY_CHANGE, settings.delayChange);
 				Serial.print("Updated delayChange to ");
 				Serial.println(settings.delayChange);
 				break;
@@ -158,7 +172,7 @@ void loop() {
 				if (message.id != BOARD_ID)
 					break;
 				settings.changeInterval = message.value;
-				EEPROM.put(EEPROM_THRESHOLD, settings.changeInterval);
+				updateEEPROM(EEPROM_THRESHOLD, settings.changeInterval);
 				Serial.print("Updated changeInterval to ");
 				Serial.println(settings.changeInterval);
 				break;
@@ -166,7 +180,7 @@ void loop() {
 				if (message.id != BOARD_ID)
 					break;
 				settings.threshold = message.value;
-				EEPROM.put(EEPROM_THRESHOLD, settings.threshold);
+				updateEEPROM(EEPROM_THRESHOLD, settings.threshold);
 				Serial.print("Updated delayChange to ");
 				Serial.println(settings.threshold);
 				break;
