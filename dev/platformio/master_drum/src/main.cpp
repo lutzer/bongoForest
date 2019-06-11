@@ -34,9 +34,9 @@ unsigned long lastLEDTime = 0;
 
 // filter
 #define FILTERED_SIGNAL
-const uint8_t sensorThreshold = 51;
-const uint8_t hitDelay = 72;
-const uint8_t hitListenDebounce = 20;
+const uint8_t sensorThreshold = 47;
+const uint8_t hitDelay = 80;
+const uint8_t hitListenDebounce = 40;
 uint64_t lastHitTime = 0;
 uint64_t lastDebounceTime = 0;
 uint16_t maxHit = 0;
@@ -68,7 +68,7 @@ void trigger(uint8_t value) {
 
   message = new RfMessage();
   message->type = 'h';
-  message->value = (uint16_t)value;
+  message->value = (uint16_t)254;//value;
   // message->id = 3;
 
   // Serial.println(message->value, DEC);

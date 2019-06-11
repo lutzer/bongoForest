@@ -12,11 +12,11 @@ int margin = 40;
 int hitRadius = 14;
 
 // filtering
-int threshold = 50;
+int threshold = 40;
 long lastHitTime = 0;
 long lastDebounceTime = 0;
-int hitDelay = 80;
-int hitListenDebounce = 48;
+int hitDelay = 70;
+int hitListenDebounce = 30;
 int maxHit = 0;
 
 void setup() {

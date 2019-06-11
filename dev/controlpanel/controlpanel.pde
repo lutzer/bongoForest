@@ -5,7 +5,7 @@ import java.io.*;
 
 Serial serial;
 
-int sleepMessage = 30;
+int sleepMessage = 100;
 
 // UI
 int activeID = 0;
