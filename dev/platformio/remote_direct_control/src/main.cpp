@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <NRFLite.h>
-#include <Queue.h>
 #include "defines.h"
 #include "RfMessage.h"
 #include "Trigger.h"
@@ -9,16 +8,7 @@
 NRFLite radio;
 RfMessage message;
 
-struct Settings {
-	uint16_t delayTime;
-	uint16_t delayChange;
-	uint16_t changeInterval;
-	uint8_t threshold;
-};
-
-Settings settings;
-
-//Queue<Trigger> queue = Queue<Trigger>(64);
+Trigger tA = {'a'}, tB = {'b'};
 
 void triggerB(int duration) {
 	digitalWrite(PIN_B, HIGH);
@@ -34,6 +24,30 @@ void triggerA(int duration) {
 	delay(duration);
 	digitalWrite(PIN_A, LOW);
 	digitalWrite(LED_BUILTIN,LOW);
+}
+
+void triggerAsync(Trigger &t) {
+    t.on = true;
+    switch (t.type) {
+        case 'a':
+            digitalWrite(PIN_A, HIGH);
+            break;
+        case 'b':
+            digitalWrite(PIN_B, HIGH);
+            break;
+    }
+}
+
+void cutAsync(Trigger &t) {
+    t.on = false;
+    switch (t.type) {
+        case 'a':
+            digitalWrite(PIN_A, LOW);
+            break;
+        case 'b':
+            digitalWrite(PIN_B, LOW);
+            break;
+    }
 }
 
 void setup() {
@@ -71,33 +85,24 @@ void loop() {
         hasNewMessage = true;
 	}
 
-	if ( hasNewMessage ) {
-
-		switch ( message.type ) {
-			// trigger drum
-			case 'a':
-				//Trigger trigger;
-                //trigger.type = 'a';
-				//trigger.duration = 60;
-                //trigger(trigger);
-                triggerA(message.duration);
-				break;
+	if ( hasNewMessage && message.id == _ID ) {
+        switch (message.type) {
+            case 'a':
+                tA.duration = message.duration;
+                tA.start = millis();
+                triggerAsync(tA);
+                break;
             case 'b':
-                //Trigger trigger;
-                //trigger.type = 'b';
-                //trigger.duration = 60;
-                //trigger(trigger);
-                triggerB(message.duration);
-				break;
-		}
+                tB.duration = message.duration;
+                tB.start = millis();
+                triggerAsync(tB);
+                break;
+        }
+
         hasNewMessage = false;
 	}
 
-	// check start of Queue if drum should be triggered
-	//if ( queue.count() > 0 && queue.peek().triggerTime < millis() ) {
-		//Trigger trigger = queue.pop();
-		//int triggerTime = map(trigger.velocity , 0, 255, MIN_TRIGGER_TIME, MAX_TRIGGER_TIME);
-		//triggerA(triggerTime);
-
-	//}
+    // check open tasks
+    if (tA.on && tA.start + tA.duration <= millis()) cutAsync(tA);
+    if (tB.on && tB.start + tB.duration <= millis()) cutAsync(tB);
 }

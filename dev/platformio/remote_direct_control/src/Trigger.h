@@ -1,4 +1,6 @@
 struct Trigger {
  	char type;
-	long duration;
+	unsigned long duration;
+    unsigned long start;
+    bool on;
 };
